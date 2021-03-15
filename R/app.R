@@ -14,6 +14,7 @@ ui <- dashboardPage(
   dashboardHeader(title = "Data Explorer"),
   dashboardSidebar(disable = TRUE),
   dashboardBody(
+    #Include theme
     shinyDashboardThemes(
       theme = "poor_mans_flatly"
     ),
@@ -31,7 +32,7 @@ ui <- dashboardPage(
   )
 )
 server <- function(input, output) {
-  
+  #Reactive values to store plot which is used to download report
   rv <- reactiveValues(plot1 = NULL, plot2 = NULL)
   
   output$plot1 <- renderPlotly({
@@ -67,12 +68,13 @@ server <- function(input, output) {
   output$generate_report <- downloadHandler(
     filename = "Report.pdf",
     content = function(file) {
-      
+    #Create temoprary file  
     tempReport <- file.path(tempdir(), "generate_report.Rmd")
     file.copy("generate_report.Rmd", tempReport, overwrite = TRUE)
-    
+    #Prepare object to pass to markdown
     params <- list(plot1 = rv$plot1, plot2 = rv$plot2)
     
+    #Call the markdown file
     rmarkdown::render(
       tempReport,
       output_file = file,
