@@ -27,7 +27,7 @@ ui <- dashboardPage(
       column(4, selectInput('usubjID', 'Select Subject ID', unique(data$USUBJID))), 
       column(8, plotlyOutput('plot2'))
     ), 
-    actionButton("generate_report","Click to download images in pdf")
+    downloadButton("generate_report","Click to download images in pdf")
   )
 )
 server <- function(input, output) {
@@ -63,17 +63,24 @@ server <- function(input, output) {
     ggplotly(plot2)
   })
   
-  observeEvent(input$generate_report, {
+  
+  output$generate_report <- downloadHandler(
+    filename = "Report.pdf",
+    content = function(file) {
+      
+    tempReport <- file.path(tempdir(), "generate_report.Rmd")
+    file.copy("generate_report.Rmd", tempReport, overwrite = TRUE)
+    
     params <- list(plot1 = rv$plot1, plot2 = rv$plot2)
-    #browser()
+    
     rmarkdown::render(
-      'generate_report.Rmd',
-      output_file = 'Report.pdf',
+      tempReport,
+      output_file = file,
       params = params, 
       envir = new.env(parent = globalenv()))
-    
     showNotification("Report.pdf downloaded", type = 'message')
-  })
+    }
+  )
 }
 
 shinyApp(ui, server)
