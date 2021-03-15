@@ -1,0 +1,22 @@
+---
+title: "Plot Output"
+output: pdf_document
+params:
+  plot1: NA
+  plot2: NA
+---
+
+<p>&nbsp;</p>
+```{r, comment="", warning=FALSE, message=FALSE, echo=FALSE}
+cat('Report Date & Time: ', as.character(Sys.time()))
+```
+
+```{r, echo = FALSE}
+params$plot1
+```
+
+\newpage
+
+```{r, echo = FALSE}
+params$plot2
+```

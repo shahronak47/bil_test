@@ -27,29 +27,52 @@ ui <- dashboardPage(
       column(4, selectInput('usubjID', 'Select Subject ID', unique(data$USUBJID))), 
       column(8, plotlyOutput('plot2'))
     ), 
-    downloadButton("generate_report","Click to download images in pdf")
+    actionButton("generate_report","Click to download images in pdf")
   )
 )
 server <- function(input, output) {
+  
+  rv <- reactiveValues(plot1 = NULL, plot2 = NULL)
+  
   output$plot1 <- renderPlotly({
-    ggplotly(data %>%
+    
+    data %>%
       filter(BMRKR2 == input$bmrkr2) %>%
       ggplot() + aes(AGE) + 
       geom_histogram(bins = input$bins, fill = 'blue') + 
       theme_classic() + 
       ggtitle(paste0('Histogram of AGE variable for ', input$bmrkr2)) + 
-      theme(text = element_text(size=15)))
+      theme(text = element_text(size=15)) -> plot1
+    
+    rv$plot1 <- plot1
+    ggplotly(plot1)
+    
   })
   
   output$plot2 <- renderPlotly({
-    ggplotly(data %>%
+    data %>%
       filter(USUBJID == input$usubjID) %>%
       group_by(LBCAT, AVISIT) %>%
       summarise(AVAL = mean(AVAL)) %>%
       ggplot() + aes(LBCAT, AVAL, fill = AVISIT) + 
       geom_col(position = 'dodge') + 
       theme_classic() + 
-      theme(text = element_text(size=15)))
+      theme(text = element_text(size=15)) -> plot2
+    
+    rv$plot2 <- plot2
+    ggplotly(plot2)
+  })
+  
+  observeEvent(input$generate_report, {
+    params <- list(plot1 = rv$plot1, plot2 = rv$plot2)
+    #browser()
+    rmarkdown::render(
+      'generate_report.Rmd',
+      output_file = 'Report.pdf',
+      params = params, 
+      envir = new.env(parent = globalenv()))
+    
+    showNotification("Report.pdf downloaded", type = 'message')
   })
 }
 
