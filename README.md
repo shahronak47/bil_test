@@ -12,4 +12,4 @@ This app shows 2 `plotly` plots.
 
 2. A dodged bar plot where user upon selection of subject ID can see `LBCAT` values colored with `AVISIT`. 
 
-User can download these plots as images in a PDF file upon clicking. 
+User can download these plots as images in a PDF file. 
