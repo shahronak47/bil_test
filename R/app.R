@@ -4,6 +4,7 @@ library(shiny)
 library(dashboardthemes)
 library(tidyverse)
 library(plotly)
+library(shinycssloaders)
 
 #Read data from github URL and join the two datasets based on STUDYID and USUBJID
 data1 <- read_tsv('https://raw.githubusercontent.com/shahronak47/data_explorer/main/Data/Random_LabValuesInfo_2020.tsv')
@@ -21,12 +22,12 @@ ui <- dashboardPage(
     fluidRow(
       column(4, selectInput('bmrkr2', 'Select BMRKR2', unique(data$BMRKR2)), 
                 numericInput('bins', 'Select number of bins', 10)),
-      column(8, plotlyOutput('plot1'))
+      column(8, withSpinner(plotlyOutput('plot1')))
     ), 
     br(),br(),br(),br(),br(),br(),
     fluidRow(
       column(4, selectInput('usubjID', 'Select Subject ID', unique(data$USUBJID))), 
-      column(8, plotlyOutput('plot2'))
+      column(8, withSpinner(plotlyOutput('plot2')))
     ), 
     downloadButton("generate_report","Click to download images in pdf")
   )
